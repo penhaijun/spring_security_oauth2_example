@@ -42,26 +42,50 @@ public class MyAuthenticationServerConfig extends AuthorizationServerConfigurerA
 
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-//        super.configure(endpoints);
         endpoints.authenticationManager(manager);
     }
 
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
 
-        clients.inMemory().withClient("client_1")
+        clients.inMemory()
+                // implicit 模式
+                // http://localhost:8081/oauth/authorize?response_type=token&client_id=client_1&scope=test
+                .withClient("client_1")
+                // 中间其实用不到密码
                 .secret("1234")
                 .resourceIds("test")
                 .scopes("test")
                 .redirectUris("http://localhost:8080")
-                .authorizedGrantTypes("client_credentials", "refresh_token")
+                .authorizedGrantTypes("implicit")
                 .authorities("client")
-                // client2
+                // client2 授权码模式 authorization_code
+                // 1 取得 authorization_code   : http://localhost:8081/oauth/authorize?response_type=code&client_id=client_2&redirect_uri=http://localhost:8080&scope=test
+                // 2:返回code 结果如:http://localhost:8080/?code=60n6zt  // 其中 60n6zt 就是授权码
+                // 3：根据CODE取是TOKEN : POST  http://localhost:8081/oauth/token?client_id=client_2&client_secret=1234&grant_type=authorization_code&code=F2GTNX&redirect_uri=http://localhost:8080
                 .and().withClient("client_2")
                 .resourceIds("test")
                 .scopes("test")
                 .redirectUris("http://localhost:8080")
                 .authorizedGrantTypes("authorization_code", "refresh_token")
+                .secret(passwordEncoder.encode("1234"))
+                .authorities("client")
+                .and()
+                // 密码模式
+                // http://localhost:8081/oauth/token?grant_type=password&username=admin&password=123&client_id=client_3&client_secret=1234
+                .withClient("client_3")
+                .resourceIds("test")
+                .scopes("test")
+                .authorizedGrantTypes("password", "refresh_token")
+                .secret(passwordEncoder.encode("1234"))
+                .authorities("client")
+                // 客户端凭证模式
+                // http://localhost:8081/oauth/token?grant_type=client_credentials&client_id=client_4&client_secret=1234
+                .and()
+                .withClient("client_4")
+                .authorizedGrantTypes("client_credentials")
+                .resourceIds("test")
+                .scopes("test")
                 .secret(passwordEncoder.encode("1234"))
                 .authorities("client");
     }

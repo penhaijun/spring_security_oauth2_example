@@ -26,8 +26,12 @@ public class MyWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-//        super.configure(auth);
-        auth.authenticationProvider(myDaoAuthenticationProvider());
+//        auth.authenticationProvider(myDaoAuthenticationProvider());
+        auth.inMemoryAuthentication()
+                .passwordEncoder(NoOpPasswordEncoder.getInstance())
+                .withUser("admin").password("123").roles("ADMIN")
+                .and()
+                .withUser("user").password("123").roles("USER");
     }
 
     @Override
@@ -47,7 +51,6 @@ public class MyWebSecurityConfig extends WebSecurityConfigurerAdapter {
         InMemoryUserDetailsManager inMemoryUserDetailsManager = new InMemoryUserDetailsManager();
         inMemoryUserDetailsManager.createUser(User.withUsername("admin").password("123").roles("ADMIN").passwordEncoder(NoOpPasswordEncoder.getInstance()::encode).build());
         inMemoryUserDetailsManager.createUser(User.withUsername("user").password("123").roles("USER").passwordEncoder(NoOpPasswordEncoder.getInstance()::encode).build());
-
         myAuthenProvider.setUserDetailsService(inMemoryUserDetailsManager);
         return myAuthenProvider;
     }
