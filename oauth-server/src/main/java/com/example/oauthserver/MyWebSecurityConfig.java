@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
@@ -24,9 +25,15 @@ public class MyWebSecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManager();
     }
 
+    @Bean
+    public UserDetailsService getUserDetailsService() throws Exception {
+        return super.userDetailsService();
+    }
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 //        auth.authenticationProvider(myDaoAuthenticationProvider());
+
         auth.inMemoryAuthentication()
                 .passwordEncoder(NoOpPasswordEncoder.getInstance())
                 .withUser("admin").password("123").roles("ADMIN")
@@ -36,7 +43,6 @@ public class MyWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-//        super.configure(http);
         http.authorizeRequests()
 //                .antMatchers("/oauth/**").permitAll()
                 .anyRequest().authenticated()

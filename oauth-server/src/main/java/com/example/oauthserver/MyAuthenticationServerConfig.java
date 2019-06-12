@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
@@ -27,6 +28,8 @@ public class MyAuthenticationServerConfig extends AuthorizationServerConfigurerA
     private AuthenticationManager manager;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
@@ -43,6 +46,7 @@ public class MyAuthenticationServerConfig extends AuthorizationServerConfigurerA
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
         endpoints.authenticationManager(manager);
+        endpoints.userDetailsService(userDetailsService);
     }
 
     @Override
@@ -59,6 +63,7 @@ public class MyAuthenticationServerConfig extends AuthorizationServerConfigurerA
                 .redirectUris("http://localhost:8080")
                 .authorizedGrantTypes("implicit")
                 .authorities("client")
+
                 // client2 授权码模式 authorization_code
                 // 1 取得 authorization_code   : http://localhost:8081/oauth/authorize?response_type=code&client_id=client_2&redirect_uri=http://localhost:8080&scope=test
                 // 2:返回code 结果如:http://localhost:8080/?code=60n6zt  // 其中 60n6zt 就是授权码
@@ -71,6 +76,7 @@ public class MyAuthenticationServerConfig extends AuthorizationServerConfigurerA
                 .secret(passwordEncoder.encode("1234"))
                 .authorities("client")
                 .and()
+
                 // 密码模式
                 // http://localhost:8081/oauth/token?grant_type=password&username=admin&password=123&client_id=client_3&client_secret=1234
                 .withClient("client_3")
@@ -79,6 +85,7 @@ public class MyAuthenticationServerConfig extends AuthorizationServerConfigurerA
                 .authorizedGrantTypes("password", "refresh_token")
                 .secret(passwordEncoder.encode("1234"))
                 .authorities("client")
+
                 // 客户端凭证模式
                 // http://localhost:8081/oauth/token?grant_type=client_credentials&client_id=client_4&client_secret=1234
                 .and()
@@ -88,6 +95,10 @@ public class MyAuthenticationServerConfig extends AuthorizationServerConfigurerA
                 .scopes("test")
                 .secret(passwordEncoder.encode("1234"))
                 .authorities("client");
+
+        // 刷新 token
+        // POST: http://localhost:8081/oauth/token?grant_type=refresh_token&client_id=client_2&client_secret=1234&refresh_token=e0172e46-12de-41b0-ac9e-facb3bd71d50
+
     }
 
 
