@@ -27,6 +27,7 @@ public class MyResourceConfig extends ResourceServerConfigurerAdapter {
     public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
         resources.resourceId("test").stateless(true);
         resources.tokenServices(getRemoteTokenService());
+
     }
 
     private RemoteTokenServices getRemoteTokenService() {
