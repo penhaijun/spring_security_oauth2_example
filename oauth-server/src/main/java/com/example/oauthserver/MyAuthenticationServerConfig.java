@@ -37,8 +37,10 @@ public class MyAuthenticationServerConfig extends AuthorizationServerConfigurerA
         security.allowFormAuthenticationForClients();
         security
                 // 开启 /oauth/token_key 验证端口无权限访问
+                // 如果用的是 jwtToken 时，是需要对token进行签名的，这里是获取 public-key 的接口，默认是 denyAll
                 .tokenKeyAccess("permitAll()")
                 // 开启 /oauth/check_token 验证端口认证权限访问
+                // 资源服务器向授权服务器验证token的接口
                 .checkTokenAccess("isAuthenticated()");
     }
 
@@ -57,7 +59,7 @@ public class MyAuthenticationServerConfig extends AuthorizationServerConfigurerA
                 // http://localhost:8081/oauth/authorize?response_type=token&client_id=client_1&scope=test
                 .withClient("client_1")
                 // 中间其实用不到密码
-                .secret("1234")
+                .secret(passwordEncoder.encode("1234"))
                 .resourceIds("test")
                 .scopes("test")
                 .redirectUris("http://localhost:8080")

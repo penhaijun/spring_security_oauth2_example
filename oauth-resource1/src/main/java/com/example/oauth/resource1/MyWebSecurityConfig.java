@@ -12,7 +12,7 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
  * @description MyWebSecurityConfig
  * @date 2019-06-11 13:32
  **/
-@Configuration
+//@Configuration
 public class MyWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
